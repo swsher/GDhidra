@@ -7,6 +7,8 @@ SPEEDS = [251.16, 311.58, 387.42, 468.00, 576.00]
 def printI(indentLevel, string):
     print(indentLevel*"  " + string)
 
+# time.sleep does block but oh well its just pseudocode anyway
+# maybe improve and restructure later
 def hereWeGo(speed, spawnDictList):
 
     usedIDs = set()
@@ -14,9 +16,43 @@ def hereWeGo(speed, spawnDictList):
     iL = 0
     for spawnDict in spawnDictList:
         if not spawnDict.get("51") in usedIDs:
-            printI(iL, f"def spawn_{spawnDict.get("51")}(delay):")
+            printI(iL, f"def async spawn_{spawnDict.get("51")}(delay):")
             iL = 1
             printI(iL, f"time.sleep(delay)")
+            if not spawnDict.get("441"):
+                for objDict in groupIDs[int(spawnDict.get("51"))]:
+                    if not objDict.get("62"):
+                        continue
+                    if objDict.get("1") == "901":
+                        printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")}, duration={objDict.get("10")})")
+                    elif objDict.get("1") == "1268":
+                        delay = objDict.get("63") if objDict.get("63") else 0.0
+                        printI(iL, f"spawn_{objDict.get("51")}({delay})")
+            else:
+                leftmostX = 99999999999999999.0
+                for objDict in groupIDs[int(spawnDict.get("51"))]:
+                    if float(objDict.get("2")) < leftmostX:
+                        leftmostX = int(objDict.get("2"))
+
+                currentTime = 0.0
+                for objDict in groupIDs[int(spawnDict.get("51"))]:
+                    if not objDict.get("62") or (objDict.get("1") != "901" and objDict.get("1") != "1268"):
+                        continue
+
+                    objTime = (float(objDict.get("2"))-leftmostX)/ speed
+                    deltaT = objTime - currentTime
+                    if deltaT > 0.0:
+                        printI(iL, f"time.sleep({deltaT})")
+
+                    currentTime += deltaT
+
+                    if objDict.get("1") == "901":
+                        printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")})")
+                    elif objDict.get("1") == "1268":
+                        delay = objDict.get("63") if objDict.get("63") else 0.0
+                        printI(iL, f"spawn_{objDict.get("51")}({delay})")
+                    
+
             iL = 0
             printI(iL, "")
             usedIDs.add(spawnDict.get("51"))
@@ -34,8 +70,8 @@ def hereWeGo(speed, spawnDictList):
     for spawn in sortedTimedSpawnTriggers:
         deltaT = spawn[0] - currentTime
         if deltaT > 0.0:
-            printI(iL, f"\n  time.sleep({deltaT})")
-        delay = spawn[1].get("53") if spawn[1].get("53") is not None else 0.0
+            printI(iL, f"time.sleep({deltaT})")
+        delay = spawn[1].get("63") if spawn[1].get("63") else 0.0
         printI(iL, f"spawn_{spawn[1].get("51")}(delay={delay})")
         currentTime = spawn[0]
 
