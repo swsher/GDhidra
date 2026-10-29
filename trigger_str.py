@@ -226,7 +226,7 @@ def strStaticCameraTrigger(trigger, verbose=False):
 def strEnterEffectTrigger(trigger, verbose=False):
     modes = ["unset", "enter", "exit"]
     mode = modes[int(trigger.get("217") if trigger.get("217") else 0)]
-    targetChannel = trigger.get("344")
+    targetChannel = trigger.get("344") if trigger.get("344") else 0
     return f"{mode}_effect(channel={targetChannel}) # unsure of what this trigger does\n"
 
 # id 1916

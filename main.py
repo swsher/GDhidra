@@ -7,76 +7,75 @@ from trigger import *
 SPEEDS = [251.16, 311.58, 387.42, 468.00, 576.00]
 
 def printI(indentLevel, string):
-    print(indentLevel*"  " + string)
+    print(indentLevel*"  " + string, end="")
 
 # time.sleep does block but oh well its just pseudocode anyway
 # maybe improve and restructure later
 
-def hereWeGo(speed, spawnDictList):
+def hereWeGo(speed, objList):
 
-    usedIDs = set()
+    # usedIDs = set()
 
     iL = 0
-    for spawnDict in spawnDictList:
-        if not spawnDict.get("51") in usedIDs:
-            printI(iL, f"def async spawn_{spawnDict.get("51")}(delay):")
-            iL = 1
-            printI(iL, f"time.sleep(delay)")
-            if not spawnDict.get("441"):
-                for objDict in groupIDs[int(spawnDict.get("51"))]:
-                    if not objDict.get("62"):
-                        continue
-                    if objDict.get("1") == "901":
-                        printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")}, duration={objDict.get("10")})")
-                    elif objDict.get("1") == "1268":
-                        delay = objDict.get("63") if objDict.get("63") else 0.0
-                        printI(iL, f"spawn_{objDict.get("51")}({delay})")
-            else:
-                leftmostX = 99999999999999999.0
-                for objDict in groupIDs[int(spawnDict.get("51"))]:
-                    if float(objDict.get("2")) < leftmostX:
-                        leftmostX = int(objDict.get("2"))
+    # for spawnDict in spawnDictList:
+    #     if not spawnDict.get("51") in usedIDs:
+    #         printI(iL, f"def async spawn_{spawnDict.get("51")}(delay):")
+    #         iL = 1
+    #         printI(iL, f"time.sleep(delay)")
+    #         if not spawnDict.get("441"):
+    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
+    #                 if not objDict.get("62"):
+    #                     continue
+    #                 if objDict.get("1") == "901":
+    #                     printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")}, duration={objDict.get("10")})")
+    #                 elif objDict.get("1") == "1268":
+    #                     delay = objDict.get("63") if objDict.get("63") else 0.0
+    #                     printI(iL, f"spawn_{objDict.get("51")}({delay})")
+    #         else:
+    #             leftmostX = 99999999999999999.0
+    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
+    #                 if float(objDict.get("2")) < leftmostX:
+    #                     leftmostX = int(objDict.get("2"))
 
-                currentTime = 0.0
-                for objDict in groupIDs[int(spawnDict.get("51"))]:
-                    if not objDict.get("62") or (objDict.get("1") != "901" and objDict.get("1") != "1268"):
-                        continue
+    #             currentTime = 0.0
+    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
+    #                 if not objDict.get("62") or (objDict.get("1") != "901" and objDict.get("1") != "1268"):
+    #                     continue
 
-                    objTime = (float(objDict.get("2"))-leftmostX)/ speed
-                    deltaT = objTime - currentTime
-                    if deltaT > 0.0:
-                        printI(iL, f"time.sleep({deltaT})")
+    #                 objTime = (float(objDict.get("2"))-leftmostX)/ speed
+    #                 deltaT = objTime - currentTime
+    #                 if deltaT > 0.0:
+    #                     printI(iL, f"time.sleep({deltaT})")
 
-                    currentTime += deltaT
+    #                 currentTime += deltaT
 
-                    if objDict.get("1") == "901":
-                        printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")})")
-                    elif objDict.get("1") == "1268":
-                        delay = objDict.get("63") if objDict.get("63") else 0.0
-                        printI(iL, f"spawn_{objDict.get("51")}({delay})")
+    #                 if objDict.get("1") == "901":
+    #                     printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")})")
+    #                 elif objDict.get("1") == "1268":
+    #                     delay = objDict.get("63") if objDict.get("63") else 0.0
+    #                     printI(iL, f"spawn_{objDict.get("51")}({delay})")
                     
 
-            iL = 0
-            printI(iL, "")
-            usedIDs.add(spawnDict.get("51"))
+    #         iL = 0
+    #         printI(iL, "")
+    #         usedIDs.add(spawnDict.get("51"))
     
     printI(iL, "def _level_start(): ")
     iL = 1
-    sortedTimedSpawnTriggers = []
-    for spawnDict in spawnDictList:
-        if not (spawnDict.get("11") or spawnDict.get("62")):
-            timeOfActivation = max(0.0, float(spawnDict.get("2")))/speed
-            sortedTimedSpawnTriggers.append([timeOfActivation, spawnDict])
+    sortedTimedTriggers = []
+    for obj in objList:
+        if isObjStrTrigger(obj) and (not (obj.get("11") or obj.get("62"))):
+            timeOfActivation = max(0.0, float(obj.get("2")))/speed
+            sortedTimedTriggers.append([timeOfActivation, obj])
 
-    sortedTimedSpawnTriggers.sort(key=lambda x: x[0])
+    sortedTimedTriggers.sort(key=lambda x: x[0])
     currentTime = 0.0
-    for spawn in sortedTimedSpawnTriggers:
-        deltaT = spawn[0] - currentTime
+    for timedTrigger in sortedTimedTriggers:
+        deltaT = timedTrigger[0] - currentTime
         if deltaT > 0.0:
-            printI(iL, f"time.sleep({deltaT})")
-        delay = spawn[1].get("63") if spawn[1].get("63") else 0.0
-        printI(iL, f"spawn_{spawn[1].get("51")}(delay={delay})")
-        currentTime = spawn[0]
+            printI(iL, f"time.sleep({deltaT})\n\n")
+        printI(iL, getTriggerStr(timedTrigger[1]))
+        currentTime = timedTrigger[0]
 
 # sourced from https://flowvix.github.io/gd-info-explorer/ids
 def loadIdsIntoDict():
@@ -183,11 +182,7 @@ def main():
     #for moveDict in moveDictList:
         #print(f"Move Trigger on group {getGroupListString(int(moveDict.get("51")))}, x = {moveDict.get("28")}, y = {moveDict.get("29")}, duration = {moveDict.get("10")}")
 
-    for obj in objectDictList:
-        if isObjStrTrigger(obj):
-            print(getTriggerStr(obj), end="")
-
-    #hereWeGo(speed, spawnDictList)
+    hereWeGo(speed, objectDictList)
 
 if __name__=="__main__":
     main()
