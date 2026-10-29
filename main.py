@@ -2,6 +2,8 @@ import requests
 import base64
 import zlib
 
+from trigger import *
+
 SPEEDS = [251.16, 311.58, 387.42, 468.00, 576.00]
 
 def printI(indentLevel, string):
@@ -9,6 +11,7 @@ def printI(indentLevel, string):
 
 # time.sleep does block but oh well its just pseudocode anyway
 # maybe improve and restructure later
+
 def hereWeGo(speed, spawnDictList):
 
     usedIDs = set()
@@ -160,7 +163,8 @@ def main():
                 objectDict[curKey] = curValue
             isKey = not isKey
 
-        objectDictList.append(objectDict)
+        if objectDict:
+            objectDictList.append(objectDict)
 
     # 901 - move trigger
     # 1268 - spawn trigger
@@ -179,7 +183,11 @@ def main():
     #for moveDict in moveDictList:
         #print(f"Move Trigger on group {getGroupListString(int(moveDict.get("51")))}, x = {moveDict.get("28")}, y = {moveDict.get("29")}, duration = {moveDict.get("10")}")
 
-    hereWeGo(speed, spawnDictList)
+    for obj in objectDictList:
+        if isObjStrTrigger(obj):
+            print(getTriggerStr(obj), end="")
+
+    #hereWeGo(speed, spawnDictList)
 
 if __name__=="__main__":
     main()

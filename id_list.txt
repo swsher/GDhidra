@@ -3103,7 +3103,7 @@ Zoom Camera Trigger
 1914
 Static Camera Trigger
 1915
-No Enter Effect Trigger
+Enter Effect Trigger
 1916
 Offset Camera Trigger
 1917
