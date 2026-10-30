@@ -12,55 +12,18 @@ def printI(indentLevel, string):
 # time.sleep does block but oh well its just pseudocode anyway
 # maybe improve and restructure later
 
-def hereWeGo(speed, objList):
+def hereWeGo(speed, groupIDs, objList):
 
-    # usedIDs = set()
+    usedIDs = set()
 
     iL = 0
-    # for spawnDict in spawnDictList:
-    #     if not spawnDict.get("51") in usedIDs:
-    #         printI(iL, f"def async spawn_{spawnDict.get("51")}(delay):")
-    #         iL = 1
-    #         printI(iL, f"time.sleep(delay)")
-    #         if not spawnDict.get("441"):
-    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
-    #                 if not objDict.get("62"):
-    #                     continue
-    #                 if objDict.get("1") == "901":
-    #                     printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")}, duration={objDict.get("10")})")
-    #                 elif objDict.get("1") == "1268":
-    #                     delay = objDict.get("63") if objDict.get("63") else 0.0
-    #                     printI(iL, f"spawn_{objDict.get("51")}({delay})")
-    #         else:
-    #             leftmostX = 99999999999999999.0
-    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
-    #                 if float(objDict.get("2")) < leftmostX:
-    #                     leftmostX = int(objDict.get("2"))
-
-    #             currentTime = 0.0
-    #             for objDict in groupIDs[int(spawnDict.get("51"))]:
-    #                 if not objDict.get("62") or (objDict.get("1") != "901" and objDict.get("1") != "1268"):
-    #                     continue
-
-    #                 objTime = (float(objDict.get("2"))-leftmostX)/ speed
-    #                 deltaT = objTime - currentTime
-    #                 if deltaT > 0.0:
-    #                     printI(iL, f"time.sleep({deltaT})")
-
-    #                 currentTime += deltaT
-
-    #                 if objDict.get("1") == "901":
-    #                     printI(iL, f"group{objDict.get("51")}.move(x={objDict.get("28")}, y={objDict.get("29")})")
-    #                 elif objDict.get("1") == "1268":
-    #                     delay = objDict.get("63") if objDict.get("63") else 0.0
-    #                     printI(iL, f"spawn_{objDict.get("51")}({delay})")
-                    
-
-    #         iL = 0
-    #         printI(iL, "")
-    #         usedIDs.add(spawnDict.get("51"))
+    for obj in objList:
+        if isObjFuncTrigger(obj) and not obj.get("51") in usedIDs:
+            printI(iL, getFuncStr(obj, groupIDs))
+            printI(iL, "")
+            usedIDs.add(obj.get("51"))
     
-    printI(iL, "def _level_start(): ")
+    printI(iL, "def _level_start(): \n")
     iL = 1
     sortedTimedTriggers = []
     for obj in objList:
@@ -73,6 +36,7 @@ def hereWeGo(speed, objList):
     for timedTrigger in sortedTimedTriggers:
         deltaT = timedTrigger[0] - currentTime
         if deltaT > 0.0:
+            print()
             printI(iL, f"time.sleep({deltaT})\n\n")
         printI(iL, getTriggerStr(timedTrigger[1]))
         currentTime = timedTrigger[0]
@@ -102,7 +66,6 @@ groupIDs = [[] for i in range(0, 10000)] # 0th will never be looked up but who c
 def getGroupListString(groupID):
     nameArray = [OBJECT_ID_DICT.get(obj.get("1")) for obj in groupIDs[groupID]]
     return f"{groupID}: {nameArray}"
-
 
 def main():
     # headers = {"User-Agent": ""}
@@ -182,7 +145,7 @@ def main():
     #for moveDict in moveDictList:
         #print(f"Move Trigger on group {getGroupListString(int(moveDict.get("51")))}, x = {moveDict.get("28")}, y = {moveDict.get("29")}, duration = {moveDict.get("10")}")
 
-    hereWeGo(speed, objectDictList)
+    hereWeGo(speed, groupIDs, objectDictList)
 
 if __name__=="__main__":
     main()

@@ -15,3 +15,9 @@ def getTriggerStr(trigger, verbose=False):
     if strFunc is None:
         raise Exception("getTriggerStr called with object that is not a trigger")
     return strFunc(trigger, verbose)
+
+def getFuncStr(trigger, groups, verbose=False):
+    funcStr = FUNC_TRIGGER_BY_ID.get(int(trigger.get("1")))
+    if funcStr is None:
+        raise Exception("getFuncStr called with object that is not a trigger")
+    return funcStr(trigger, groups, verbose)

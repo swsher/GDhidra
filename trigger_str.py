@@ -72,7 +72,27 @@ def strToggleTrigger(trigger, verbose=False):
 
 # id 1268
 def strSpawnTrigger(trigger, verbose=False):
-    raise Exception("Spawn Trigger is callable-like and cannot be returned as a string")
+    targetGroup = trigger.get("51")
+    delay = float(trigger.get("63")) if trigger.get("63") else 0.0
+    if verbose:
+        return strUnfinished(verbose)
+    else:
+        return f"spawn_{targetGroup}(delay={delay})\n"
+
+# todo quite a lot of stuff
+# yeah ill do it at some point
+def strFuncSpawnTrigger(trigger, groups, verbose=False):
+    targetGroup = int(trigger.get("51"))
+    if verbose:
+        return strUnfinished(verbose)
+    else:
+        string = f"def async spawn_{targetGroup}(delay):\n"
+        for obj in groups[targetGroup]:
+            if STR_TRIGGER_BY_ID.get(int(obj.get("1"))):
+                string += "  " + STR_TRIGGER_BY_ID.get(int(obj.get("1")))(obj, verbose)
+        return string + "\n"
+
+        
 
 # id 1346
 def strRotateTrigger(trigger, verbose=False):
@@ -336,29 +356,29 @@ def strOptionsTrigger(trigger, verbose=False):
 
     string = ""
     if streakAdditive:
-        string += f"enable_streak_additive()\n" if streakAdditive == "1" else f"disable_streak_additive()\n"
+        string += f"enable_streak_additive()\n  " if streakAdditive == "1" else f"disable_streak_additive()\n  "
     if hideGround:
-        string += f"hide_ground()\n" if hideGround == "1" else f"show_ground()\n"
+        string += f"hide_ground()\n  " if hideGround == "1" else f"show_ground()\n  "
     if hideMg:
-        string += f"hide_middleground()\n" if hideMg == "1" else f"show_middleground()\n"        
+        string += f"hide_middleground()\n  " if hideMg == "1" else f"show_middleground()\n  "        
     if hideP1:
-        string += f"hide_player_1()\n" if hideP1 == "1" else f"show_player_1()\n"
+        string += f"hide_player_1()\n  " if hideP1 == "1" else f"show_player_1()\n  "
     if hideP2:
-        string += f"hide_player_2()\n" if hideP2 == "1" else f"show_player_2()\n"
+        string += f"hide_player_2()\n  " if hideP2 == "1" else f"show_player_2()\n  "
     if disableP1Controls:
-        string += f"disable_player_1_controls()\n" if disableP1Controls == "1" else f"enable_player_1_controls()\n"
+        string += f"disable_player_1_controls()\n  " if disableP1Controls == "1" else f"enable_player_1_controls()\n  "
     if disableP2Controls:
-        string += f"disable_player_2_controls()\n" if disableP2Controls == "1" else f"enable_player_2_controls()\n"
+        string += f"disable_player_2_controls()\n  " if disableP2Controls == "1" else f"enable_player_2_controls()\n  "
     if unlinkDualGravity:
-        string += f"unlink_dual_gravity()\n" if unlinkDualGravity == "1" else f"link_dual_gravity()\n"
+        string += f"unlink_dual_gravity()\n  " if unlinkDualGravity == "1" else f"link_dual_gravity()\n  "
     if hideAttempts:
-        string += f"hide_attempt_counter()\n" if hideAttempts == "1" else f"show_attempt_counter()\n"
+        string += f"hide_attempt_counter()\n  " if hideAttempts == "1" else f"show_attempt_counter()\n  "
     if deathAudio:
-        string += f"disable_audio_on_death()\n" if deathAudio == "1" else f"enable_audio_on_death()\n"
+        string += f"disable_audio_on_death()\n  " if deathAudio == "1" else f"enable_audio_on_death()\n  "
     if noDeathSFX:
-        string += f"disable_death_sfx()\n" if noDeathSFX == "1" else f"enable_death_sfx()\n"
+        string += f"disable_death_sfx()\n  " if noDeathSFX == "1" else f"enable_death_sfx()\n  "
     if boostSlide:
-        string += f"enable_boost_slide()\n" if boostSlide == "1" else f"disable_boost_slide()\n"
+        string += f"enable_boost_slide()\n  " if boostSlide == "1" else f"disable_boost_slide()\n  "
     if editRespawnTime:
         string += f"set_respawn_duration(duration={respawnTime})\n"
 
@@ -735,9 +755,9 @@ def strSequenceTrigger(trigger, verbose=False):
 # id 3608
 def strSpawnParticleTrigger(trigger, verbose=False):
     if verbose:
-        f"spawn_particle() # this function is unformatted, do it yourself with a pr to GDhidra on GitHub\n"
+        return f"spawn_particle() # this function is unformatted, do it yourself with a pr to GDhidra on GitHub\n"
     else:
-        f"spawn_particle() # this function is unformatted, do it yourself with a pr to GDhidra on GitHub\n"
+        return f"spawn_particle() # this function is unformatted, do it yourself with a pr to GDhidra on GitHub\n"
 
 # id 3609
 def strInstantCollisionTrigger(trigger, verbose=False):
@@ -847,11 +867,11 @@ def strLinkVisibleTrigger(trigger, verbose=False):
         return strUnfinished(verbose)
 
 FUNC_TRIGGER_BY_ID = {
-    1268: strSpawnTrigger,
-    1616: strStopTrigger,
-    3600: strEndTrigger,
-    3604: strEventTrigger,
-    3607: strSequenceTrigger
+    1268: strFuncSpawnTrigger,
+    #1616: strStopTrigger, # TODO: add
+    #3600: strEndTrigger, # TODO: add
+    #3604: strEventTrigger, # TODO: add
+    #3607: strSequenceTrigger # TODO: add
 }
 
 STR_TRIGGER_BY_ID = {
@@ -861,6 +881,7 @@ STR_TRIGGER_BY_ID = {
     1006: strPulseTrigger,
     1007: strAlphaTrigger,
     1049: strToggleTrigger,
+    1268: strSpawnTrigger,
     1346: strRotateTrigger,
     1347: strFollowTrigger,
     1520: strShakeTrigger,
